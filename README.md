@@ -1,1 +1,1 @@
-# Donucik w ASCII
+# Donucik w ASCII, wersja powoli zadawalająca
