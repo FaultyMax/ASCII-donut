@@ -3,12 +3,17 @@
 #include <cstring>
 #include <cstdlib>
 #include <unistd.h>
+#ifdef _WIN32
+    #define CLEAR_SCREEN "cls"
+#else
+    #define CLEAR_SCREEN "clear"
+#endif
 
 using namespace std;
 
-int main(){
+char cont;
 
-    char cont;
+int main(){
 
     do {
 
@@ -23,31 +28,48 @@ int main(){
         int inc = 0;
         int inc_goal;
 
+        int screenwidth=80,screenheight=22,screen_area=screenwidth*screenheight;
+
         float A_val = 0;
         float B_val = 0;
 
         float theta_spacing = 0;
         float phi_spacing = 0;
 
-        int skala = 1;
+        int scale = 1;
 
         int debug_info;
+
+        int def = 0;
 
         // wprowadzenie danych użytkownika
 
         cout << "Ilość iteracji pętli?" << endl; cin >> inc_goal;
 
-        cout << "wartości zwiększenia A i B?" << endl; cin >> A_val; cin >> B_val;
+        cout << "użyć wartości domyślnych? (1/0)" << endl; cin >> def;
 
-        cout << "wartości zwiększenia thety i phi? ( zalecane 0.09 i 0.03 )" << endl; cin >> theta_spacing; cin >> phi_spacing;
+        if (def == 1){
 
-        cout << "skala? ( liczba całkowita )" << endl; cin >> skala;
+            A_val = 0.0000025;
+            B_val = 0.0000015;
+            theta_spacing = 0.09;
+            phi_spacing = 0.03;
+
+        }else{
+
+            cout << "wartości zwiększenia A i B?" << endl; cin >> A_val; cin >> B_val;
+
+            cout << "wartości zwiększenia thety i phi? ( zalecane 0.09 i 0.03 )" << endl; cin >> theta_spacing; cin >> phi_spacing;
+
+            cout << "skala? ( liczba całkowita )" << endl; cin >> scale;
+
+        }
 
         cout << "Debug info? (1/0)" << endl; cin >> debug_info;
 
         // generowanie donuta
 
-        printf("\x1b[2J");
+        system(CLEAR_SCREEN); // wczesniej uzywałem printf(\x1b[2J) ale tworzyło to dziwne błędy.
 
         float A = 0,B = 0;
 
@@ -57,31 +79,40 @@ int main(){
         char b[1760];
         while(inc < inc_goal){
             memset(b,32,1760);
-            memset(z,0,7040); // to jest 1760 * 4 bo float ma 4 bity
+            memset(z,0,1760*4); // to jest 1760 * 4 bo float ma 4 bity
+            float fff;
             for(theta=0 ; theta < 2 * pi ; theta += theta_spacing){ 
 
-                float cos-theta = cos(theta);
+                float cos_theta = cos(theta);
+                float sin_theta = sin(theta);
 
                 for(phi=0 ; phi < 2 * pi ; phi += phi_spacing){
-                    float c = sin(phi);
+
+                    float cos_phi = cos(phi);
+                    float sin_phi = sin(phi);
+
                     float e = sin(A);
-                    float f = sin(theta);
+
                     float g = cos(A);
-                    float h = cos-theta + 2;
 
-                    float Depth = 1 / (c * h * e + f * g + 5.5);
+                    float h = 2 + cos_theta; //
 
-                    float l = cos(phi);
+                    float K2 = 5.5; // chyba to jest K2?
+
+                    float Depth = 1 / (K2 + sin_phi * h * e + sin_theta * g);
 
                     float m = cos(B);
                     float n = sin(B);
 
-                    float t = c * h * g - f * e;
+                    float t = sin_phi * h * g - sin_theta * e; // A PO CHUJ TO TUTAJ JEST?
 
-                    int x = 40 + 30 * skala * Depth * (l * h * m - t * n);
-                    int y = 12 + 15 * skala * Depth * (l * h * n + t * m);
+                    int x = 40 + 30 * scale * Depth * (cos_phi * h * m - t * n);
+                    int y = 12 + 15 * scale * Depth * (cos_phi * h * n + t * m);
+
                     int o = x + 80 * y;
-                    int N = 8 * ((f * e - c * cos-theta * g) * m - c * cos-theta * e - f * g - l * cos-theta * n);
+                    int N = 8 * ((sin_theta * e - sin_phi * cos_theta * g) * m - sin_phi * cos_theta * e - sin_theta * g - cos_phi * cos_theta * n);
+
+                    fff = (cos_phi * cos_theta * n - g * cos_theta * sin_phi - e * sin_theta + m * (g * sin_theta - cos_theta * e * sin_phi)); // DALCZEGO TO GÓNWO NIE JEST TYM SAMYM CO NA GÓRZE??? HUH
 
                     if(22 > y && y > 0 && x > 0 && 80 > x && Depth > z[o]){
                         z[o] = Depth;
@@ -92,8 +123,8 @@ int main(){
             printf("\x1b[H");
             for (int k = 0; k < 1761; k++){
                 putchar(k%80 ? b[k] : 10);
-                A += 0.0000025; // speed?
-                B += 0.0000015; // speed.
+                A += A_val; // speed?
+                B += B_val; // speed.
 
                 if (A > 2*pi){ A -= 2*pi; }
                 if (B > 2*pi){ B -= 2*pi; }
@@ -102,6 +133,7 @@ int main(){
             inc++;
             if(debug_info == 1){
                 cout << "wartość A i B: " << A << " " << B << endl;
+                cout << "fff: " << fff*8 << endl;
             }
             cout << "inc: " << inc << endl;
             usleep(5000);
