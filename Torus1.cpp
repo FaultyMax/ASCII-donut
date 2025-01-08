@@ -10,7 +10,21 @@
 #endif
 using namespace std;
 
+// leciutka modyfikacja, dodano parametry dla pi, thety i phi
+
+float theta_goal = 6.28, phi_goal = 6.28;
+
+float theta_spacing = 0.07, phi_spacing = 0.02;
+
 int main(){
+
+    system(CLEAR_SCREEN);
+
+    cout << "do jakiej wartości ma zmierzać theta? "; cin >> theta_goal;
+    cout << "do jakiej wartości ma zmierzać phi? "; cin >> phi_goal;
+
+    cout << "co ile zwiększać kąt theta? "; cin >> theta_spacing;
+    cout << "co ile zwiększać kąt phi? "; cin >> phi_spacing;
 
     system(CLEAR_SCREEN);
 
@@ -22,8 +36,8 @@ int main(){
     while(true){
         memset(b,32,1760);
         memset(z,0,7040);
-        for(theta=0; theta < 6.28; theta += 0.07){ // 6.28 to Donut, 0.28 to jebany pierścień XDD
-            for(phi=0; phi < 6.28; phi += 0.02){
+        for(theta=0; theta < theta_goal; theta += theta_spacing){ 
+            for(phi=0; phi < phi_goal; phi += phi_spacing){
                 float c = sin(phi);
                 float d = cos(theta);
                 float e = sin(A);
@@ -52,18 +66,19 @@ int main(){
         printf("\x1b[H");
         for (int k = 0; k < 1761; k++){
             putchar(k%80 ? b[k] : 10);
-            A += 0.00011; // speed?
-            B += 0.000015; // speed.
+            A += 0.000011; 
+            B += 0.0000049;
+
+            // zmienna float jest ograniczona więc co 2pi ją resetujemy
+
+            if (A > 6.28){ A -= 6.28; }
+            if (B > 6.28){ B -= 6.28; }
+
         }
         
 
-        usleep(8000);
+        usleep(30000);
     }
-    
-    
-    
-
-    // pooof magic happens 
 
     return 0;
 }

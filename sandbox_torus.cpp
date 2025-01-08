@@ -109,14 +109,14 @@ int main(){
                     int x = 40 + 30 * scale * Depth * (cos_phi * h * m - t * n);
                     int y = 12 + 15 * scale * Depth * (cos_phi * h * n + t * m);
 
-                    int o = x + 80 * y;
+                    int pos = x + y * 80;
                     int N = 8 * ((sin_theta * e - sin_phi * cos_theta * g) * m - sin_phi * cos_theta * e - sin_theta * g - cos_phi * cos_theta * n);
 
-                    fff = (cos_phi * cos_theta * n - g * cos_theta * sin_phi - e * sin_theta + m * (g * sin_theta - cos_theta * e * sin_phi)); // DALCZEGO TO GÓNWO NIE JEST TYM SAMYM CO NA GÓRZE??? HUH
+                    fff = (cos_phi * cos_theta * n - g * cos_theta * sin_phi - e * sin_theta + m * (g * sin_theta - cos_theta * e * sin_phi)); 
 
-                    if(22 > y && y > 0 && x > 0 && 80 > x && Depth > z[o]){
-                        z[o] = Depth;
-                        b[o] = ".,-~:;=!*#$@"[N > 0 ? N : 0];
+                    if(22 > y && y > 0 && x > 0 && 80 > x && Depth > z[pos]){
+                        z[pos] = Depth;
+                        b[pos] = ".,-~:;=!*#$@"[N > 0 ? N : 0];
                     }
                 }
             }
@@ -133,9 +133,8 @@ int main(){
             inc++;
             if(debug_info == 1){
                 cout << "wartość A i B: " << A << " " << B << endl;
-                cout << "fff: " << fff*8 << endl;
+                cout << "inc: " << inc << endl;
             }
-            cout << "inc: " << inc << endl;
             usleep(5000);
         }
 

@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstring>
 #include <unistd.h>
+#include <vector>
 
 #ifdef _WIN32
     #define CLEAR_SCREEN "cls"
@@ -18,25 +19,23 @@ using namespace std;
 
 const float pi = 3.14159;
 
-int screen_width = 100, screen_height = 80; // szerokość i wysokość ekranu terminala.
+int screen_width = 80, screen_height = 22; // szerokość i wysokość ekranu terminala.
 
 float angle_A , angle_B; // dwa kąty wokól których będziemy obracać. Kąt A obraca wokół osi Z a B wokół osi X
 
+float A_val = 0.000006; float B_val = 0.000003; // oryginalnie 0.000005 i 0.0000025
+
 float radius = 1,origin = 2; // R1 i R2
 
-float K2 = 5; // dystans od donuta ( początkowo obserwator znajduje się na początku układu)
+float K2 = 8; // dystans od donuta ( początkowo obserwator znajduje się na początku układu)
 
-float K1 = (screen_width * K2 * 3)/(8*(radius+origin)); // z'
+float K1 = (screen_width * K2 * 2)/(8*(radius+origin)); // z' 
 
 float theta = 0,phi = 0; // dwa kąty których obrót będzie tworzyć torus
 
-float theta_spacing = 0.09 ,phi_spacing = 0.03; // ilość rozmieszczenia punktów torusu
+float theta_spacing = 0.06 ,phi_spacing = 0.03; // ilość rozmieszczenia punktów torusu
 
 int main(){
-
-    
-
-    K1 = 50;
 
     //int screen_area = screen_width*screen_height;
 
@@ -44,11 +43,8 @@ int main(){
 
     while(true){
 
-        char characterbuffer[screen_width*screen_height];
-        float zbuffer[screen_width*screen_height]; 
-
-        memset(characterbuffer,32,screen_width*screen_height); // 32 to ' '
-        memset(zbuffer,0,screen_width*screen_height);
+        vector <char> characterbuffer(screen_width*screen_height,' ');
+        vector <float> zbuffer(screen_width*screen_height, 0); 
 
         float cosA = cos(angle_A), sinA = sin(angle_A);
         float cosB = cos(angle_B), sinB = sin(angle_B);
@@ -81,7 +77,7 @@ int main(){
 
                 // efekt oświetlenia
 
-                float luminance = cos_phi * cos_theta * sinB - cosA * cos_theta * cos_phi - sinA * sin_theta + cosB * (cosA * sin_theta - cos_theta * sinA * sin_phi);
+                double luminance = (cos_phi * cos_theta * sinB) - (cosA * cos_theta * cos_phi) - (sinA * sin_theta) + (cosB * ((cosA * sin_theta) - (cos_theta * sinA * sin_phi)));
 
                 // zmienna luminance wacha się od -sqrt(2) do sqrt(2), ale jeśli jest < 0 to powierzchnia nie jest skierowana do nas, więc ją pomijamy.
 
@@ -92,13 +88,13 @@ int main(){
                 if ( pos >= 0 && pos < screen_width*screen_height){
 
                     if(ooz > zbuffer[pos]){ // większe ooz oznacza że pixel jest bliżej obserwatora niż to co poprzednio tam stało.
-                    zbuffer[pos] = ooz;
+                        zbuffer[pos] = ooz;
 
-                    int luminance_index = int(luminance*8);
+                        int luminance_index = int(luminance*8);
 
-                     if (luminance_index > 11){luminance_index = 11;}
+                        //if (luminance_index > 11){luminance_index = 11;}
 
-                    characterbuffer[pos] = ".,-~:;=!*#$@"[luminance_index];
+                        characterbuffer[pos] = ".,-~:;=!*#$@12"[luminance_index > 0 ? luminance_index : 0];
 
                     }
 
@@ -107,14 +103,15 @@ int main(){
             }
         }
 
-        printf("\x1b[H");
+        cout << "\x1b[H";
 
-        for(int i = 0 ; i < screen_width*screen_height ; i++){
-            putchar(i % screen_width ? characterbuffer[i] : '\n');
-            angle_A += 0.000005;
-            angle_B += 0.0000025;
+        for(int p = 0 ; p < screen_width*screen_height ; p++){
+            cout.put( p % screen_width ? characterbuffer[p] : '\n');
+            angle_A += A_val;
+            angle_B += B_val;
         }
-        usleep(50000);
+
+        usleep(5000);
 
     }
 

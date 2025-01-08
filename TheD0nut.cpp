@@ -8,7 +8,10 @@
 #else
     #define CLEAR_SCREEN "clear"
 #endif
+
 using namespace std;
+
+// oryginalny kod który zajumałem i zamieniłem z c na c++
 
 int main(){
 
@@ -22,7 +25,7 @@ int main(){
     while(true){
         memset(b,32,1760);
         memset(z,0,7040);
-        for(theta=0; theta < 6.28; theta += 0.07){ // 6.28 to Donut, 0.28 to jebany pierścień XDD
+        for(theta=0; theta < 6.28; theta += 0.07){ 
             for(phi=0; phi < 6.28; phi += 0.02){
                 float c = sin(phi);
                 float d = cos(theta);
@@ -36,7 +39,7 @@ int main(){
                 float n = sin(B);
                 float t = sin(phi) * (cos(theta) + 2) * cos(A) - sin(theta) * sin(A);
 
-                int rozmiar = 2;
+                int rozmiar = 1;
 
                 int x = 40 + 30 * rozmiar * D * (cos(phi) * (cos(theta) + 2) * m-t * n);
                 int y = 12 + 15 * rozmiar * D * (l * h * n + t * m);
@@ -56,14 +59,11 @@ int main(){
             B += 0.000015; // speed.
         }
         
-
         usleep(8000);
-    }
-    
-    
-    
 
     // pooof magic happens 
+
+    }
 
     return 0;
 }

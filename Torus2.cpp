@@ -8,10 +8,23 @@
 #else
     #define CLEAR_SCREEN "clear"
 #endif
+#include <random>
+#include <ctime>
+
+float random_float(float min, float max) {
+
+	return ((float)rand() / RAND_MAX) * (max - min) + min;
+
+}
 
 using namespace std;
 
 int main(){
+
+    srand(time(0));
+
+    float a_val=0;
+    float b_val=0;
 
     char cont;
 
@@ -23,12 +36,10 @@ int main(){
 
         // potrzebne zmienne
 
-        //int k;
-
         int inc = 0;
-        int inc_goal;
+        int inc_goal = 1;
 
-        int debug_info;
+        int debug_info = 1;
 
         // wprowadzenie danych użytkownika
 
@@ -46,11 +57,14 @@ int main(){
 
         float z[1760];
         char b[1760];
+
         while(inc < inc_goal){
+            a_val = random_float(0.0000001,0.00000920);
+            b_val = random_float(0.0000001,0.00000599);
             memset(b,32,1760);
             memset(z,0,7040);
             for(theta=0; theta < 6.28; theta += 0.09){ 
-                for(phi=0; phi < 6.28; phi += 0.03){
+                for(phi=0; phi < 6.28; phi += 0.05){
                     float c = sin(phi);
                     float d = cos(theta);
                     float e = sin(A);
@@ -79,8 +93,10 @@ int main(){
             printf("\x1b[H");
             for (int k = 0; k < 1761; k++){
                 putchar(k%80 ? b[k] : 10);
-                A += 0.000002; // speed?
-                B += 0.0000005; // speed.
+                A += a_val; // obrót o oś x
+                B += b_val; // obrót o oś z
+
+                // zmienna float jest ograniczona więc co 2pi ją resetujemy
 
                 if (A > 6.28){ A -= 6.28; }
                 if (B > 6.28){ B -= 6.28; }
@@ -90,8 +106,8 @@ int main(){
             if(debug_info == 1){
                 cout << "wartość A i B: " << A << " " << B << endl;
             }
-            cout << "inc: " << inc << endl;
-            usleep(5000);
+            cout << "inc: " << inc << endl; // dlaczego donut sie przez to zapada? ( dobra ok terminal był za mały )
+            usleep(7000);
         }
 
     } while (cont == 'y');
