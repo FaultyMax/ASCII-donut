@@ -1,20 +1,5 @@
 
-a.out
+*.out
 
-.vscode/
-
-Cube/a.out
-
-cdonut/a.out
-
-cdonut/ray
-
-Torus3
-
-sandbox
-
-execs/
-
-kh/
-
-ten_donut_f.cpp
+/cdonut
+/cube

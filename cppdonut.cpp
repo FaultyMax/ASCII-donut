@@ -1,4 +1,4 @@
-// własny kod donuta bo cudzy mnie pokonał
+// Let there be a donut
 
 #include <iostream>
 #include <cstdlib>
@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <vector>
 
+// Set clearing for different operating systems
 #ifdef _WIN32
     #define CLEAR_SCREEN "cls"
 #else
@@ -15,36 +16,34 @@
 
 using namespace std;
 
-// wszelkie zmienne
 
-const float pi = 3.14159;
+const float pi = 3.14159; // fairly accurate
 
-int screen_width = 80, screen_height = 22; // szerokość i wysokość ekranu terminala.
+int screen_width = 80, screen_height = 22; 
 
-float angle_A , angle_B; // dwa kąty wokól których będziemy obracać. Kąt A obraca wokół osi Z a B wokół osi X
+float angle_A , angle_B; // dwa kąty wokól których będziemy obracać. Kąt A obraca wokół osi X a B wokół osi Z
 
-float A_val = 0.000006; float B_val = 0.000003; // oryginalnie 0.000005 i 0.0000025
+float A_val = 0.004; float B_val = 0.002; // oryginalnie 0.000005 i 0.0000025
 
 float radius = 1,origin = 2; // R1 i R2
 
 float K2 = 8; // dystans od donuta ( początkowo obserwator znajduje się na początku układu)
 
-float K1 = (screen_width * K2 * 2)/(8*(radius+origin)); // z' 
+float K1 = (screen_width*K2*2) / (8*(radius+origin)); // z' 
 
 float theta = 0,phi = 0; // dwa kąty których obrót będzie tworzyć torus
 
-float theta_spacing = 0.06 ,phi_spacing = 0.03; // ilość rozmieszczenia punktów torusu
+float theta_spacing = 0.09 ,phi_spacing = 0.03; // ilość rozmieszczenia punktów torusu
 
 int main(){
 
-    //int screen_area = screen_width*screen_height;
-
-    system(CLEAR_SCREEN); // czyszczenie ekranu
+    system(CLEAR_SCREEN);
 
     while(true){
 
         vector <char> characterbuffer(screen_width*screen_height,' ');
         vector <float> zbuffer(screen_width*screen_height, 0); 
+
 
         float cosA = cos(angle_A), sinA = sin(angle_A);
         float cosB = cos(angle_B), sinB = sin(angle_B);
@@ -66,7 +65,7 @@ int main(){
 
                 float y = circlex * (cos_phi * sinB - cosB * sinA * sin_phi) + circley * cosA * cosB;
 
-                float z = circlex * cosA * sin_phi + circley * sinA + K2; // oprócz pomnożonej macierzy dodajemy stałą K2
+                float z = (circlex * cosA * sin_phi) + (circley * sinA) + 8; // oprócz pomnożonej macierzy dodajemy stałą K2
 
                 float ooz = 1/z; // "one over z"
 
@@ -92,7 +91,7 @@ int main(){
 
                         int luminance_index = int(luminance*8);
 
-                        //if (luminance_index > 11){luminance_index = 11;}
+                        if (luminance_index > 11){luminance_index = 11;}
 
                         characterbuffer[pos] = ".,-~:;=!*#$@12"[luminance_index > 0 ? luminance_index : 0];
 
@@ -103,13 +102,15 @@ int main(){
             }
         }
 
+        // this will bring the cursor to "home" location
         cout << "\x1b[H";
 
         for(int p = 0 ; p < screen_width*screen_height ; p++){
-            cout.put( p % screen_width ? characterbuffer[p] : '\n');
-            angle_A += A_val;
-            angle_B += B_val;
+            cout.put(p % screen_width ? characterbuffer[p] : '\n');
         }
+
+        angle_A += A_val;
+        angle_B += B_val;
 
         usleep(5000);
 

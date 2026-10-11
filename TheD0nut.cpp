@@ -55,8 +55,8 @@ int main(){
         printf("\x1b[H");
         for (int k = 0; k < 1761; k++){
             putchar(k%80 ? b[k] : 10);
-            A += 0.00011; // speed?
-            B += 0.000015; // speed.
+            A += 0.00008; // speed?
+            B += 0.000011; // speed.
         }
         
         usleep(8000);
