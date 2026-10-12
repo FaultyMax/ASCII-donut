@@ -17,23 +17,20 @@
 using namespace std;
 
 
-const float pi = 3.14159; // fairly accurate
+const float pi = 3.14; // We do not need much accuracy
 
 int screen_width = 80, screen_height = 22; 
 
-float angle_A , angle_B; // dwa kąty wokól których będziemy obracać. Kąt A obraca wokół osi X a B wokół osi Z
+float angle_A, angle_B; // those two will rotate around X and Z axis, in that order
+float A_val = 0.004, B_val = 0.002; // higher value, bigger angle
 
-float A_val = 0.004; float B_val = 0.002; // oryginalnie 0.000005 i 0.0000025
+float radius = 1, origin = 2; // radius of the circle that rotates around the Y axis and distance from the origin (0,0)
 
-float radius = 1,origin = 2; // R1 i R2
+const float K2 = 5; // currently the viewer is @ the origin so we need to move him back a little, this constant helps
+const float K1 = screen_width*K2*3/(8*(radius+origin)); // z'  
 
-float K2 = 8; // dystans od donuta ( początkowo obserwator znajduje się na początku układu)
-
-float K1 = (screen_width*K2*2) / (8*(radius+origin)); // z' 
-
-float theta = 0,phi = 0; // dwa kąty których obrót będzie tworzyć torus
-
-float theta_spacing = 0.09 ,phi_spacing = 0.03; // ilość rozmieszczenia punktów torusu
+float theta = 0,phi = 0; // these angles will create the torus
+float theta_spacing = 0.09 ,phi_spacing = 0.03; // how many points are we calculating? Lesser value means more dense
 
 int main(){
 
@@ -41,7 +38,9 @@ int main(){
 
     while(true){
 
+        // Hic sunt pixilla
         vector <char> characterbuffer(screen_width*screen_height,' ');
+        // This however will be used to store the z coordinate of everything we draw
         vector <float> zbuffer(screen_width*screen_height, 0); 
 
 
@@ -59,28 +58,28 @@ int main(){
                 float circlex = origin + radius*cos_theta;
                 float circley = radius*sin_theta;
 
-                // obliczanie współrzędnych punktów w 3D (x y z) po obróceniu...
+                // obliczanie współrzędnych punktów w 3D (x y z) 
 
                 float x = circlex * (cosB * cos_phi + sinA * sinB * sin_phi) - circley * cosA * sinB;
 
                 float y = circlex * (cos_phi * sinB - cosB * sinA * sin_phi) + circley * cosA * cosB;
 
-                float z = (circlex * cosA * sin_phi) + (circley * sinA) + 8; // oprócz pomnożonej macierzy dodajemy stałą K2
+                float z = 8 + circlex * cosA * sin_phi + circley * sinA; // we add constant K2
 
                 float ooz = 1/z; // "one over z"
 
-                // projekcja x i y
-
+                // x & y projection
+                // y is negated because although it goes up in 3D space, it's not the case in 2D.
                 int xp = int(screen_width/2 + K1*ooz*x); 
-                int yp = int(screen_height/2 - K1*ooz*y*0.5); // w 3D y idzie w "góre", ale nie w 2D więc y jest zanegowana
+                int yp = int(screen_height/2 - K1*ooz*y * 0.5); 
 
-                // efekt oświetlenia
+                // throwing some light, we multiply our surface normal matrice by some chosen light, here it was (0, 1, -1)
 
                 double luminance = (cos_phi * cos_theta * sinB) - (cosA * cos_theta * cos_phi) - (sinA * sin_theta) + (cosB * ((cosA * sin_theta) - (cos_theta * sinA * sin_phi)));
 
-                // zmienna luminance wacha się od -sqrt(2) do sqrt(2), ale jeśli jest < 0 to powierzchnia nie jest skierowana do nas, więc ją pomijamy.
+                // zmienna luminance waha się od -sqrt(2) do sqrt(2), ale jeśli jest < 0 to powierzchnia nie jest skierowana do nas, więc ją pomijamy.
 
-                if ( luminance < 0){ luminance = 0;}
+                if (luminance < 0){ luminance = 0; }
 
                 int pos = xp + yp * screen_width;
 
@@ -93,8 +92,8 @@ int main(){
 
                         if (luminance_index > 11){luminance_index = 11;}
 
-                        characterbuffer[pos] = ".,-~:;=!*#$@12"[luminance_index > 0 ? luminance_index : 0];
-
+                        characterbuffer[pos] = ".,-~:;=!*#$@"[luminance_index > 0 ? luminance_index : 0];
+                        //characterbuffer[pos] = ".,-~:;*=+!|#$@"[luminance_index > 0 ? luminance_index : 0];
                     }
 
                 }
@@ -106,6 +105,7 @@ int main(){
         cout << "\x1b[H";
 
         for(int p = 0 ; p < screen_width*screen_height ; p++){
+            // clever usage of the conditional operator
             cout.put(p % screen_width ? characterbuffer[p] : '\n');
         }
 
